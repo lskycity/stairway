@@ -1,4 +1,4 @@
-package com.lskycity.stairway.stairway;
+package com.lskycity.stairway;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
