@@ -20,17 +20,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new FetchDataTask().execute();
+        new FetchDataTask().execute("http://139.196.22.105:5000/stairway");
     }
 
 
-
-    class FetchDataTask extends AsyncTask<Object, Object, List<Message>> {
+    class FetchDataTask extends AsyncTask<String, Object, List<ConnectInfo>> {
 
         @Override
-        protected List<Message> doInBackground(Object... params) {
+        protected List<ConnectInfo> doInBackground(String... params) {
             try {
-                return getJSONObjectFromURL("http://139.196.22.105:5000/stairway");
+                return getJSONObjectFromURL(params[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -38,14 +37,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(List<Message> messages) {
+        protected void onPostExecute(List<ConnectInfo> messages) {
             TextView tv = (TextView) findViewById(R.id.text1);
             tv.setText(messages.toString());
         }
     }
 
 
-    public static List<Message> getJSONObjectFromURL(String urlString) throws IOException {
+    public static List<ConnectInfo> getJSONObjectFromURL(String urlString) throws IOException {
 
         HttpURLConnection urlConnection = null;
 
@@ -66,56 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    static class Message {
-        String sername;
-        String ip;
-        String username;
-        String password;
-
-        public Message(String sername, String ip, String username, String password) {
-            this.sername = sername;
-            this.ip = ip;
-            this.username = username;
-            this.password = password;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Message message = (Message) o;
-
-            if (sername != null ? !sername.equals(message.sername) : message.sername != null)
-                return false;
-            if (ip != null ? !ip.equals(message.ip) : message.ip != null) return false;
-            if (username != null ? !username.equals(message.username) : message.username != null)
-                return false;
-            return password != null ? password.equals(message.password) : message.password == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = sername != null ? sername.hashCode() : 0;
-            result = 31 * result + (ip != null ? ip.hashCode() : 0);
-            result = 31 * result + (username != null ? username.hashCode() : 0);
-            result = 31 * result + (password != null ? password.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Message{" +
-                    "sername='" + sername + '\'' +
-                    ", ip='" + ip + '\'' +
-                    ", username='" + username + '\'' +
-                    ", password='" + password + '\'' +
-                    '}';
-        }
-    }
-
-    public static List<Message> readJsonStream(InputStream in) throws IOException {
+    public static List<ConnectInfo> readJsonStream(InputStream in) throws IOException {
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
         try {
             return readMessagesArray(reader);
@@ -124,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static List<Message> readMessagesArray(JsonReader reader) throws IOException {
-        List<Message> messages = new ArrayList<Message>();
+    private static List<ConnectInfo> readMessagesArray(JsonReader reader) throws IOException {
+        List<ConnectInfo> messages = new ArrayList<ConnectInfo>();
 
         reader.beginArray();
         while (reader.hasNext()) {
@@ -135,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         return messages;
     }
 
-    public static Message readMessage(JsonReader reader) throws IOException {
+    public static ConnectInfo readMessage(JsonReader reader) throws IOException {
         String sername = null;
         String ip = null;
         String username = null;
@@ -156,6 +106,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         reader.endObject();
-        return new Message(sername, ip, username, password);
+        return new ConnectInfo(sername, ip, username, password);
     }
 }
